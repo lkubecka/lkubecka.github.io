@@ -1,0 +1,53 @@
+---
+layout: default
+---
+<section id="toc-event-description">
+    <h1>{{ page.title }}</h1>
+    {{content}}
+</section>
+
+{% if page.albuminoId %}
+<section id="toc-event-gallery">
+    <h2>Galerie</h2>
+    <iframe src="http://photos.coderetreat.cz/albums/{{page.albuminoId}}" class="span12" width="800" height="480"></iframe>
+</section>
+{% endif %}
+
+{% if page.srazyId %}
+
+<section id="toc-event-attendees">
+    <h2>Účastníci</h2>
+    <p>Registrovat se můžete na strankách <a href="http://srazy.info/coderetreat/{{ page.srazyId }}">srazy.info/coderetreat/{{ page.srazyId }}</a>.</p>
+    <ul class="attendees"></ul>
+</section>
+
+<script type="text/javascript">
+    (function($, undefined) {
+        $(function($) {
+            function appendAttendee(parent, attendeeJson) {
+                $('<li></li>')
+                    .append(
+                        $('<a></a>')
+                        .attr('href', 'https://srazy.info/lide/' + attendeeJson.url)
+                        .append($('<img class="avatar"></img>').attr('src', attendeeJson.avatar_url))
+                        .append($('<span class="name"></span>').text(attendeeJson.realname))
+                    )
+                    .appendTo(parent);
+            }
+
+            var parent = $('ul.attendees');
+            $.ajax({
+                url: 'https://api.srazy.info/date/{{ page.srazyId }}/attending',
+
+                success: function(data) {
+                    $.each(data, function(index, value) { appendAttendee(parent, value); });
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    parent.append($('<p></p>').text('Chyba: ' + textStatus + ' (' + errorThrown + ')'));
+                }
+            });
+        })
+    })(jQuery);
+</script>
+
+{% endif %}
